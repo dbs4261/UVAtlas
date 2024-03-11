@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-cmake_minimum_required (VERSION 3.20)
+cmake_minimum_required (VERSION 3.25)
 
 set(UVATLAS_VERSION 1.8.7)
 
@@ -136,24 +136,13 @@ if(NOT MINGW)
     target_precompile_headers(${PROJECT_NAME} PRIVATE UVAtlas/pch.h)
 endif()
 
-if(MINGW OR (NOT WIN32))
-    find_package(directxmath CONFIG REQUIRED)
-    find_package(directx-headers CONFIG REQUIRED)
-else()
-    find_package(directxmath CONFIG QUIET)
-    find_package(directx-headers CONFIG QUIET)
-endif()
+include(build/directx-headers-provider.cmake)
+include(build/directx-math-provider.cmake)
 
-if(directxmath_FOUND)
-    message(STATUS "Using DirectXMath package")
-    target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::DirectXMath)
-endif()
+target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::DirectXMath)
 
-if(directx-headers_FOUND)
-    message(STATUS "Using DirectX-Headers package")
-    target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::DirectX-Headers)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC USING_DIRECTX_HEADERS)
-endif()
+target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::DirectX-Headers)
+target_compile_definitions(${PROJECT_NAME} PUBLIC USING_DIRECTX_HEADERS)
 
 if(ENABLE_USE_EIGEN)
     message(STATUS "Using Eigen3 & Spectra for CSymmetricMatrix::GetEigen.")
